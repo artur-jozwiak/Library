@@ -16,9 +16,10 @@ namespace Library.Database.Repositories
             _context = context;
         }
 
-        public void Create(Book entity)
+        public Book Create(Book entity)
         {
             _context.Books.Add(entity);
+            return entity;
 
         }
 

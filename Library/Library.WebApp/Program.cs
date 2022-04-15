@@ -1,10 +1,18 @@
+using Library.BussinesLogic.Interfaces;
+using Library.BussinesLogic.Models;
 using Library.Database;
+using Library.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IRepository<Book, int>, BookRepository>();
+builder.Services.AddScoped<IRepository<Order, int>, OrderRepository>();
+builder.Services.AddScoped<IRepository<User, int>, UserRepository>();
+
 builder.Services.AddDbContext<LibraryContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("LibraryDatabase")));
 var app = builder.Build();
 

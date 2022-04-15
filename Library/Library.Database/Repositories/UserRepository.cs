@@ -18,10 +18,10 @@ namespace Library.Database.Repositories
             _context = context;
         }
 
-        public void Create(User entity)
+        public User Create(User entity)
         {
-             _context.Users.Add(entity);
-           
+            _context.Users.Add(entity);
+            return entity;  
         }
 
         public void Delete(int id)

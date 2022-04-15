@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Library.Database.Repositories
 {
-    internal class OrderRepository : IRepository<Order, int>
+    public class OrderRepository : IRepository<Order, int>
     {
         private readonly LibraryContext _context;
         public OrderRepository(LibraryContext context)
@@ -16,9 +16,10 @@ namespace Library.Database.Repositories
             _context = context;
         }
 
-        public void Create(Order entity)
+        public Order Create(Order entity)
         {
             _context.Orders.Add(entity);
+            return entity;
 
         }
 
