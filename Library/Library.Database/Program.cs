@@ -19,7 +19,8 @@ using (var context = new LibraryContext())
         Title = "Hary Potter",
         Author = " J.K. Rowling",
         Category = Library.BussinesLogic.Enums.BookCategory.SciFi,
-        Quantity = 3
+        Quantity = 3,
+        
 
     };
     await context.AddAsync(book);
@@ -55,7 +56,9 @@ using (var context = new LibraryContext())
         Name = "Marcin",
         Surname = "Kowalski",
         PersonalNumber = 5121376,
+        Books = new List<Book>() { book},
         Role = Library.BussinesLogic.Enums.Role.Employee
+        
     };
     await context.AddAsync(user);
     await context.SaveChangesAsync();

@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
+using Library.BussinesLogic.Interfaces;
 using Library.BussinesLogic.Models;
 using Library.Database;
+using Library.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,8 +14,10 @@ using Xunit;
 namespace Tests
 {
     [Trait("Category", "InMemory")]
-    public class Tests
+    public class Tests /*: IClassFixture<OrderRepository>*/
     {
+ 
+
         [Fact]
         public async Task AddOrder()
         {
@@ -32,6 +36,7 @@ namespace Tests
                 };
 
                 await context.Orders.AddAsync(order);
+              
                 await context.SaveChangesAsync();
 
             }
@@ -41,7 +46,7 @@ namespace Tests
             {
                 var orders = await context.Orders/*.Where(m => m.Id == 1)*/.ToArrayAsync();
 
-                orders.Count().Should().Be(4);
+                orders.Count().Should().Be(8);
                 //var order = orders.First();
                 //order.Book.Author.Should().Be("Hary Potter");
             }
@@ -50,12 +55,10 @@ namespace Tests
         [Fact]
         public async Task AddBook()
         {
-            // adding entry
             using (var context = new LibraryContext())
             {
                 var book = new Book
-                {
-                   
+                {                   
                     Title = "Metro",
                     Author = "Dimitry Gluchowsky",
                     Category= Library.BussinesLogic.Enums.BookCategory.Fantasy,
@@ -65,15 +68,70 @@ namespace Tests
                 await context.SaveChangesAsync();
             }
 
-            // checking if entry was inserted to database
             using (var context = new LibraryContext())
             {
-                var orders = await context.Books/*.Where(m => m.Id == 1)*/.ToArrayAsync();
-
-                orders.Count().Should().Be(1);
-                //var order = orders.First();
-                //order.Book.Author.Should().Be("Hary Potter");
+                var books = await context.Books.ToArrayAsync();
+                books.Count().Should().Be(19);
             }
+        }
+
+        [Fact]
+        public async Task AddUser()
+        {  
+            using (var context = new LibraryContext())
+            {
+                var user = new User
+                {
+                    Name = "Karolina",
+                    Surname = "Kowalska",
+                    PersonalNumber = 1234567899,
+                    Role = Library.BussinesLogic.Enums.Role.Employee,
+                    Books = new List<Book>()
+                };
+                await context.Users.AddAsync(user);
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new LibraryContext())
+            {
+                var users = await context.Users.ToArrayAsync();
+                users.Count().Should().Be(7);
+            }
+        }
+
+
+        [Fact]
+        public async Task BorrowABook()
+        {
+
+            using (var context = new LibraryContext())
+            {
+                var order = new Order
+                {
+                    User = context.Users.First(),
+                    Book = context.Books.First(),
+                    BorrowInterval = 56,
+                    Cost = 0
+                };
+                var book = order.Book;
+                order.Book.Quantity--;
+                order.User.Books.Add(book);
+             
+                await context.Orders.AddAsync(order);
+                await context.SaveChangesAsync();
+
+                var orders = await context.Orders.ToArrayAsync(); 
+                //order.Book.Quantity.Should().Be(-3);
+                order.User.Books.Count().Should().Be(1);
+                
+            }
+
+            //using (var context = new LibraryContext())
+            //{
+            //    var orders = await context.Orders.ToArrayAsync();
+            //     context.Orders.Last().Book.Quantity.Should().Be(2);
+            //    //orders.Count().Should().Be(6);
+            //}
         }
     }
 }
