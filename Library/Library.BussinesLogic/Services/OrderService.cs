@@ -68,15 +68,6 @@ namespace Library.BussinesLogic.Services
             float cost = 0;
             return cost;
         }
-        
-
-        public int GetRentInterval(Order order)
-        {       
-          TimeSpan borrowInterval=  order.StartTime - order.EndTime;
-          int intBorrowInterval = (int) borrowInterval.TotalDays;
-
-            return intBorrowInterval;
-        }
 
         public int GetRentInterval(DateTime startTime, DateTime endTime)
         {
@@ -86,10 +77,9 @@ namespace Library.BussinesLogic.Services
             return intBorrowInterval;
         }
 
-        public DateTime GetStartTime(DateTime startTime)
-        {
-            return startTime;
-        }
+        
+
+
 
 
 

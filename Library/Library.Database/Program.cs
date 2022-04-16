@@ -76,15 +76,57 @@ using System.Threading.Tasks;
 
 
 
-//namespace Library
-//{
-//    internal class Program
-//    {
+namespace Library
+{
+    internal class Program
+    {
 
-//        private static void Main(string[] args)
-//        {
+        private static void Main(string[] args)
+        {
+            
+            string lecturer = "lecturer";
+            string student = "student";
+            string employee = "employee";
+
+            string role="";
+            int days = 10;
+            float cost;
+
+            switch(role)
+            {
+
+                case "lecturer":
+                   if(days>28)
+                    {
+                        int a = days - 28;
+                        int b = a - 14;
+                        int c = b - 3;
+                       cost = a * 10 + b * 5 + c * 2;       
+                    }
+                   else if(days<28 && days>14)
+                    {
+                        int a = days - 14;
+                        int b =a - 3;
+                        cost = a*5 + b* 2;
+                    }
+                   else if(days<14 && days>3)
+                    {
+                        int a = days - 3;
+                        cost = a * 2;
+                    }
+                   else if(days<=3)
+                    {
+                        cost = 0;
+                    }
 
 
-//        }
-//    }
-//}
+                    break;
+
+                default:
+                    break;
+            }
+
+
+        }
+    }
+}

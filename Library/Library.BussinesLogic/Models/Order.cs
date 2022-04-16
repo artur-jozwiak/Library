@@ -13,8 +13,6 @@ namespace Library.BussinesLogic.Models
         public int UserId { get; set; }
         public Book Book { get; set; }
         public int BookId { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
         public int BorrowInterval { get; set; }
         public float Cost { get; set; }
     }
