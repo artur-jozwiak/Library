@@ -51,7 +51,7 @@ namespace Library.Database.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("Library.BussinesLogic.Models.Order", b =>
@@ -80,7 +80,7 @@ namespace Library.Database.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Library.BussinesLogic.Models.User", b =>
@@ -107,7 +107,7 @@ namespace Library.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Library.BussinesLogic.Models.Book", b =>
