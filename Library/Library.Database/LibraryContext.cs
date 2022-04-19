@@ -33,5 +33,14 @@ namespace Library.Database
             optionsBuilder
                 .UseSqlServer("Server=localhost;Database=LibraryDb;Trusted_Connection=True;MultipleActiveResultSets=True;");
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+        
+               
+                
+
+        }
     }
 }

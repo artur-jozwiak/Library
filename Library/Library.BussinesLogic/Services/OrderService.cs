@@ -10,7 +10,7 @@ namespace Library.BussinesLogic.Services
 {
     public class OrderService
     {
-        private readonly IRepository<Book, int> _bookRepository;
+        private  IRepository<Book, int> _bookRepository;
         private readonly IRepository<User, int> _userRepository;
         private readonly IRepository<Order, int> _orderRepository;
         public OrderService(IRepository<Book, int> bookRepository, IRepository<User, int> userRepository, IRepository<Order, int> orderRepository)
@@ -20,62 +20,163 @@ namespace Library.BussinesLogic.Services
             _orderRepository = orderRepository;
         }
 
-        public void BorrowABook()
-        {
-            Order order = new Order();
-            User user = order.User;
-            Book book = order.Book;
-
-            if (order.Book.Quantity > 0)
-            {                    
-                book.Quantity--;
-                user.Books.Add(order.Book);
-                _orderRepository.Create(order);
-                _orderRepository.Save();
-            }
-        }
+      
         public void BorrowABook(int bookId, int userId)
         {
-            Order order = new Order();
-            User user = order.User;
-            Book book = order.Book;
+            Order order = new Order();     
+            var book= _bookRepository.GetById(bookId);
+            var user = _userRepository.GetById(userId);
 
-            order.Book = _bookRepository.GetById(bookId);
-            order.User = _userRepository.GetById(userId);
+            order.User = user;
+            order.Book = book;
 
             if (order.Book.Quantity > 0)
             {
-                book.Quantity--;
-                user.Books.Add(order.Book);
+                order.Book.Quantity--;   
                 _orderRepository.Create(order);
                 _orderRepository.Save();
             }
         }
 
-        public void GiveBackABook(Order order)
-        { 
-            Book book = order.Book;
-            User user = order.User;
+        public void GiveBackABook(int orderId)
+        {
+            var order = _orderRepository.GetById(orderId);
+           
+            _bookRepository.GetAll();
+            _userRepository.GetAll();
+            int bookId = order.Book.Id;
+            int userId = order.User.Id;
+            var book = _bookRepository.GetById(bookId);
+            var user = _userRepository.GetById(userId);
 
-            user.Books.Remove(book);
             book.Quantity++;
             _orderRepository.Delete(order.Id);
             _orderRepository.Save();
         }
 
-        public float GetCostOfOrder(int rentInterval )
-        {
+        public float GetCostOfOrder(Order order)
+        {  
+            int userId = order.UserId;
+            var user = _userRepository.GetById(userId);
+
             float cost = 0;
+            switch(user.Role)
+            {
+                case Enums.Role.Lecturer:
+                    cost = GetCostOfOrderForLecturer(order.BorrowInterval);
+                 break;
+                case Enums.Role.Student:
+                    cost = GetCostOfOrderForStudent(order.BorrowInterval);
+                 break;
+                case Enums.Role.Employee:
+                    cost=GetCostOfOrderForEmployee(order.BorrowInterval);
+                    break;
+                default:
+                    break;
+            }
+
+            order.Cost = cost;     
+            return cost;
+        }
+        public float GetCostOfOrder(Order order, DateTime startTime, DateTime endTime)
+        {
+            order.BorrowInterval = GetBorrowInterval(startTime, endTime);
+            int userId = order.UserId;
+            var user = _userRepository.GetById(userId);
+
+
+            float cost = 0;
+            switch (user.Role)
+            {
+                case Enums.Role.Lecturer:
+                    cost = GetCostOfOrderForLecturer(order.BorrowInterval);
+                    break;
+                case Enums.Role.Student:
+                    cost = GetCostOfOrderForStudent(order.BorrowInterval);
+                    break;
+                case Enums.Role.Employee:
+                    cost = GetCostOfOrderForEmployee(order.BorrowInterval);
+                    break;
+                default:
+                    break;
+            }
+
+            order.Cost = cost;
             return cost;
         }
 
-        public int GetRentInterval(DateTime startTime, DateTime endTime)
-        {
-            TimeSpan borrowInterval = startTime - endTime;
-            int intBorrowInterval = (int)borrowInterval.TotalDays;
 
+        public float GetCostOfOrderForLecturer(int borrowInterval)
+        {
+            float cost = new float();
+
+            if (borrowInterval > 28)
+            {
+                cost = (borrowInterval - 28) * 10 + (28 - 14) * 5 + (14 - 3) * 2;
+            }
+            else if (borrowInterval <= 28 && borrowInterval > 14)
+            {
+                cost = (borrowInterval - 14) * 5 + (14 - 3) * 2;
+            }
+            else if (borrowInterval <= 14 && borrowInterval > 3)
+            {
+                cost = (borrowInterval - 3) * 2;
+            }
+            else if (borrowInterval <= 3)
+            {
+                cost = 0;
+            }
+            return cost;
+        }
+
+
+        public float GetCostOfOrderForStudent(int borrowInterval)
+        {
+            float cost = new float();
+
+            if (borrowInterval > 28)
+            {
+                cost = (borrowInterval - 28) * 10 + (28 - 14) * 5 + (14 - 7) * 2 + 7;
+            }
+            else if (borrowInterval <= 28 && borrowInterval > 14)
+            {
+                cost = (borrowInterval - 14) * 5 + (14 - 7) * 2 + 7;
+            }
+            else if (borrowInterval <= 14 && borrowInterval > 7)
+            {
+                cost = (borrowInterval - 7) * 2 +7;
+            }
+            else if (borrowInterval <= 7)
+            {
+                cost = borrowInterval *1;
+            }
+            return cost;
+        }
+        public float GetCostOfOrderForEmployee(int borrowInterval)
+        {
+            float cost = new float();
+
+            if (borrowInterval > 28)
+            {
+                cost = (borrowInterval - 28) * 5;
+            }
+
+            else if (borrowInterval <= 28)
+            {
+                cost = 0;
+            }
+            return cost;
+        }
+
+        public int GetBorrowInterval(DateTime startTime, DateTime endTime)
+        {
+            TimeSpan borrowInterval = endTime-startTime;
+            int intBorrowInterval = (int)borrowInterval.TotalDays;
             return intBorrowInterval;
         }
+
+
+        
 
         
 

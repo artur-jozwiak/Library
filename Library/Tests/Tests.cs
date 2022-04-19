@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Library.BussinesLogic.Interfaces;
 using Library.BussinesLogic.Models;
+using Library.BussinesLogic.Services;
 using Library.Database;
 using Library.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -14,39 +15,51 @@ using Xunit;
 namespace Tests
 {
     [Trait("Category", "InMemory")]
-    public class Tests /*: IClassFixture<OrderRepository>*/
+    public class Tests  /*:IClassFixture<IRepository<Book,int>>*/
     {
- 
+        //private IRepository<Book, int> _bookRepository;
+        //private readonly IRepository<User, int> _userRepository;
+        //private readonly IRepository<Order, int> _orderRepository;
+
+
+       private static LibraryContext context= new LibraryContext();
+       private static IRepository<Book, int> _bookRepository = new BookRepository(context);
+        private static IRepository<User, int> _userRepository = new UserRepository(context);
+        private static IRepository<Order, int> _orderRepository = new OrderRepository(context);
+
+        OrderService orderService = new OrderService(_bookRepository, _userRepository, _orderRepository);
+        //public Tests(IRepository<Book, int> bookRepository/*, IRepository<User, int> userRepository, IRepository<Order, int> orderRepository*/)
+        //{
+        //    _bookRepository = bookRepository;
+        //    //_userRepository = userRepository;
+        //    //_orderRepository = orderRepository;
+        //}
 
         [Fact]
-        public async Task AddOrder()
+        public async Task AddOrderTest()
         {
             // adding entry
             using (var context = new LibraryContext())
-            {
+            { 
+                OrderRepository orderRepository = new OrderRepository(context);
                 var order = new Order
                 {
-                    
-                    //UserId = 1,
-                    User = new User { Books = new List<Book>(), /*Id=1, */Name="Tom", Surname="Stanley", PersonalNumber=123456, Role= Library.BussinesLogic.Enums.Role.Student },
-                    //BookId = 1,
-                    Book = new Book {/* Id = 1,*/ Author= "Jarosław Grzędowicz", Category= Library.BussinesLogic.Enums.BookCategory.Fantasy, Quantity=3, Title="Pan Lodowego Ogrodu"},
+                    User = new User {Name="Tom", Surname="Stanley", PersonalNumber=123456, Role= Library.BussinesLogic.Enums.Role.Student },           
+                    Book = new Book { Author= "Jarosław Grzędowicz", Category= Library.BussinesLogic.Enums.BookCategory.Fantasy, Quantity=3, Title="Pan Lodowego Ogrodu"},
                     BorrowInterval=56,
                     Cost=0           
                 };
 
-                await context.Orders.AddAsync(order);
-              
+                orderRepository.Create(order);
+                //await context.Orders.AddAsync(order);
                 await context.SaveChangesAsync();
-
             }
-
             // checking if entry was inserted to database
             using (var context = new LibraryContext())
             {
                 var orders = await context.Orders/*.Where(m => m.Id == 1)*/.ToArrayAsync();
 
-                orders.Count().Should().Be(8);
+                orders.Count().Should().Be(9);
                 //var order = orders.First();
                 //order.Book.Author.Should().Be("Hary Potter");
             }
@@ -86,7 +99,7 @@ namespace Tests
                     Surname = "Kowalska",
                     PersonalNumber = 1234567899,
                     Role = Library.BussinesLogic.Enums.Role.Employee,
-                    Books = new List<Book>()
+                    
                 };
                 await context.Users.AddAsync(user);
                 await context.SaveChangesAsync();
@@ -101,37 +114,82 @@ namespace Tests
 
 
         [Fact]
-        public async Task BorrowABook()
+        public async Task BorrowABookTest()
         {
+            //var context = new LibraryContext();
+            //IRepository<Book, int> _bookRepository = new BookRepository(context);
+            //IRepository<User, int> _userRepository = new UserRepository(context);
+            //IRepository<Order, int> _orderRepository = new OrderRepository(context);
 
-            using (var context = new LibraryContext())
+            //OrderService orderService = new OrderService(_bookRepository, _userRepository, _orderRepository);
+            using ( context = new LibraryContext())
             {
-                var order = new Order
-                {
-                    User = context.Users.First(),
-                    Book = context.Books.First(),
-                    BorrowInterval = 56,
-                    Cost = 0
-                };
-                var book = order.Book;
-                order.Book.Quantity--;
-                order.User.Books.Add(book);
-             
-                await context.Orders.AddAsync(order);
+                int bookId = 2;
+                orderService.BorrowABook(bookId,2);
                 await context.SaveChangesAsync();
-
-                var orders = await context.Orders.ToArrayAsync(); 
-                //order.Book.Quantity.Should().Be(-3);
-                order.User.Books.Count().Should().Be(1);
                 
+                //var book =context.Books.First();
+                var book = context.Books.FirstOrDefault(b=>b.Id == bookId);
+                book.Quantity.Should().Be(1);
             }
 
-            //using (var context = new LibraryContext())
-            //{
-            //    var orders = await context.Orders.ToArrayAsync();
-            //     context.Orders.Last().Book.Quantity.Should().Be(2);
-            //    //orders.Count().Should().Be(6);
-            //}
+        }
+
+        [Fact]
+        public async Task GiveBackBookTest()
+        {
+            using (context = new LibraryContext())
+            {
+                int orderId = 5; 
+                var order = context.Orders.FirstOrDefault(o=>o.Id==orderId);
+                orderService.GiveBackABook(order.Id);
+                await context.SaveChangesAsync();
+                var book = context.Books.FirstOrDefault(b=>b.Id==order.BookId);
+                book.Quantity.Should().Be(4);
+            }
+
+        }
+
+        [Fact]
+       public async Task GetCostOfOrderForLecturerTest()
+        {
+            float cost= orderService.GetCostOfOrderForLecturer(14);
+            cost.Should().Be(22);
+        }
+
+        [Fact]
+        public async Task GetCostOfOrderForstudentTest()
+        {
+            float cost = orderService.GetCostOfOrderForStudent(16);
+            cost.Should().Be(31);
+        }
+        [Fact]
+        public async Task GetCostOfOrderForEmployeeTest()
+        {
+            float cost = orderService.GetCostOfOrderForEmployee(30);
+            cost.Should().Be(10);
+        }
+
+        [Fact]
+        public async  Task GetCostOfOrderTest()
+        {
+            int  orderId = 3;
+            var order =  context.Orders.FirstOrDefault(o => o.Id == orderId);
+            float cost = orderService.GetCostOfOrder(order);
+
+            cost.Should().Be(0);
+        }
+
+        [Fact]
+        public async Task GetCostOfOrderWithDates()
+        {
+            DateTime startTime= DateTime.Now;
+            DateTime endTime = DateTime.Now.AddDays(32);
+            int orderId = 1;
+            var order = context.Orders.FirstOrDefault(o => o.Id == orderId);
+            float cost = orderService.GetCostOfOrder(order,startTime,endTime);
+
+            cost.Should().Be(131);
         }
     }
 }

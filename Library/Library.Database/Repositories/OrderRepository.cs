@@ -16,11 +16,17 @@ namespace Library.Database.Repositories
             _context = context;
         }
 
+        
+
         public Order Create(Order entity)
         {
-            _context.Orders.Add(entity);
-            return entity;
-
+            if (entity.Book.Quantity > 0)
+            {
+                entity.Book.Quantity--;
+                _context.Orders.Add(entity);
+                return entity;
+            }
+            return null;
         }
 
         public void Delete(int id)
@@ -36,6 +42,7 @@ namespace Library.Database.Repositories
         {
             return _context.Orders.ToList();
         }
+     
 
         public Order GetById(int id)
         {

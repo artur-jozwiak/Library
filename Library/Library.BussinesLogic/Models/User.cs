@@ -17,7 +17,7 @@ namespace Library.BussinesLogic.Models
 
             public Role Role { get; set; }
 
-            public IList<Book> Books { get; set; }
+            
         }
     
 }

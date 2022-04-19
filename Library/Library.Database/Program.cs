@@ -18,6 +18,7 @@ using (var context = new LibraryContext())
     {
         Title = "Hary Potter",
         Author = " J.K. Rowling",
+        UserId= 3,
         Category = Library.BussinesLogic.Enums.BookCategory.SciFi,
         Quantity = 3,
         
@@ -56,7 +57,7 @@ using (var context = new LibraryContext())
         Name = "Marcin",
         Surname = "Kowalski",
         PersonalNumber = 5121376,
-        Books = new List<Book>() { book},
+       
         Role = Library.BussinesLogic.Enums.Role.Employee
         
     };
