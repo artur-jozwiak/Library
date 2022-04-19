@@ -13,7 +13,7 @@ namespace Library.BussinesLogic.Models
             public int Id { get; set; }
             public string Name { get; set; }
             public string Surname { get; set; }
-            public int PersonalNumber { get; set; }
+            public long PersonalNumber { get; set; }
 
             public Role Role { get; set; }
 

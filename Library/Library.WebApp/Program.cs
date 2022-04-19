@@ -16,6 +16,7 @@ builder.Services.AddScoped<IRepository<User, int>, UserRepository>();
 builder.Services.AddDbContext<LibraryContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("LibraryDatabase")));
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -35,4 +36,28 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+
+CreateDbIfNotExists(app);
+DbInitializer.Initialize(app);
+
+
+
 app.Run();
+
+static void CreateDbIfNotExists(IHost host)
+{
+    using (var scope = host.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        try
+        {
+            var context = services.GetRequiredService<LibraryContext>();
+            DbInitializer.Initialize(context);
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred creating the DB.");
+        }
+    }
+}
