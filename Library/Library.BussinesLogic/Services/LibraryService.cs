@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Library.BussinesLogic.Services
 {
-    public class OrderService
+    public class LibraryService : ILibraryService
     {
         private  IRepository<Book, int> _bookRepository;
         private readonly IRepository<User, int> _userRepository;
         private readonly IRepository<Order, int> _orderRepository;
-        public OrderService(IRepository<Book, int> bookRepository, IRepository<User, int> userRepository, IRepository<Order, int> orderRepository)
+        public LibraryService(IRepository<Book, int> bookRepository, IRepository<User, int> userRepository, IRepository<Order, int> orderRepository)
         {
             _bookRepository = bookRepository;
             _userRepository = userRepository;
@@ -83,7 +83,6 @@ namespace Library.BussinesLogic.Services
             order.BorrowInterval = GetBorrowInterval(startTime, endTime);
             int userId = order.UserId;
             var user = _userRepository.GetById(userId);
-
 
             float cost = 0;
             switch (user.Role)
@@ -174,16 +173,5 @@ namespace Library.BussinesLogic.Services
             int intBorrowInterval = (int)borrowInterval.TotalDays;
             return intBorrowInterval;
         }
-
-
-        
-
-        
-
-
-
-
-
-
     }
 }

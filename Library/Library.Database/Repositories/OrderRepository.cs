@@ -34,6 +34,7 @@ namespace Library.Database.Repositories
             var order = _context.Orders.FirstOrDefault(u => u.Id == id);
             if (order != null)
             {
+                order.Book.Quantity++;
                 _context.Orders.Remove(order);
             }
         }

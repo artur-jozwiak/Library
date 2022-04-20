@@ -14,10 +14,8 @@ namespace Library.BussinesLogic.Models
             public string Name { get; set; }
             public string Surname { get; set; }
             public long PersonalNumber { get; set; }
-
             public Role Role { get; set; }
 
-            
         }
     
 }

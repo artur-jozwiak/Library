@@ -37,9 +37,46 @@ namespace Library.Database
         {
             base.OnModelCreating(modelBuilder);
 
-        
-               
-                
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Book)
+                .WithMany()
+                .HasForeignKey(o => o.BookId)
+                .IsRequired();
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.User)
+                .WithMany()
+                .HasForeignKey(o=>o.UserId)
+                .IsRequired();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.PersonalNumber)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.PersonalNumber)
+                .HasMaxLength(11);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.Name)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<User>()
+               .Property(u => u.Surname)
+               .IsRequired()
+               .HasMaxLength(50);
+
+            modelBuilder.Entity<User>()
+               .Property(u => u.Role)
+               .IsRequired();
+              
+
+
+
+
+
+
 
         }
     }

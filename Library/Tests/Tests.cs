@@ -15,30 +15,18 @@ using Xunit;
 namespace Tests
 {
     [Trait("Category", "InMemory")]
-    public class Tests  /*:IClassFixture<IRepository<Book,int>>*/
+    public class Tests 
     {
-        //private IRepository<Book, int> _bookRepository;
-        //private readonly IRepository<User, int> _userRepository;
-        //private readonly IRepository<Order, int> _orderRepository;
-
-
        private static LibraryContext context= new LibraryContext();
        private static IRepository<Book, int> _bookRepository = new BookRepository(context);
         private static IRepository<User, int> _userRepository = new UserRepository(context);
         private static IRepository<Order, int> _orderRepository = new OrderRepository(context);
-
-        OrderService orderService = new OrderService(_bookRepository, _userRepository, _orderRepository);
-        //public Tests(IRepository<Book, int> bookRepository/*, IRepository<User, int> userRepository, IRepository<Order, int> orderRepository*/)
-        //{
-        //    _bookRepository = bookRepository;
-        //    //_userRepository = userRepository;
-        //    //_orderRepository = orderRepository;
-        //}
-
+        LibraryService libraryService = new LibraryService(_bookRepository, _userRepository, _orderRepository);
+   
         [Fact]
         public async Task AddOrderTest()
         {
-            // adding entry
+
             using (var context = new LibraryContext())
             { 
                 OrderRepository orderRepository = new OrderRepository(context);
@@ -49,31 +37,26 @@ namespace Tests
                     BorrowInterval=56,
                     Cost=0           
                 };
-
                 orderRepository.Create(order);
-                //await context.Orders.AddAsync(order);
                 await context.SaveChangesAsync();
             }
-            // checking if entry was inserted to database
+
             using (var context = new LibraryContext())
             {
-                var orders = await context.Orders/*.Where(m => m.Id == 1)*/.ToArrayAsync();
-
+                var orders = await context.Orders.ToArrayAsync();
                 orders.Count().Should().Be(9);
-                //var order = orders.First();
-                //order.Book.Author.Should().Be("Hary Potter");
             }
         }
 
         [Fact]
-        public async Task AddBook()
+        public async Task AddBookTest()
         {
             using (var context = new LibraryContext())
             {
                 var book = new Book
                 {                   
-                    Title = "Metro",
-                    Author = "Dimitry Gluchowsky",
+                    Title = "Wiedźmin",
+                    Author = "Andrzej Sapkowski",
                     Category= Library.BussinesLogic.Enums.BookCategory.Fantasy,
                     Quantity=3,  
                 };
@@ -84,19 +67,19 @@ namespace Tests
             using (var context = new LibraryContext())
             {
                 var books = await context.Books.ToArrayAsync();
-                books.Count().Should().Be(19);
+                books.Count().Should().Be(4);
             }
         }
 
         [Fact]
-        public async Task AddUser()
+        public async Task AddUserTest()
         {  
             using (var context = new LibraryContext())
             {
                 var user = new User
                 {
                     Name = "Karolina",
-                    Surname = "Kowalska",
+                    Surname = "Janowska",
                     PersonalNumber = 1234567899,
                     Role = Library.BussinesLogic.Enums.Role.Employee,
                     
@@ -108,29 +91,23 @@ namespace Tests
             using (var context = new LibraryContext())
             {
                 var users = await context.Users.ToArrayAsync();
-                users.Count().Should().Be(7);
+                users.Count().Should().Be(4);
             }
         }
-
 
         [Fact]
         public async Task BorrowABookTest()
         {
-            //var context = new LibraryContext();
-            //IRepository<Book, int> _bookRepository = new BookRepository(context);
-            //IRepository<User, int> _userRepository = new UserRepository(context);
-            //IRepository<Order, int> _orderRepository = new OrderRepository(context);
-
-            //OrderService orderService = new OrderService(_bookRepository, _userRepository, _orderRepository);
+      
             using ( context = new LibraryContext())
             {
                 int bookId = 2;
-                orderService.BorrowABook(bookId,2);
+                libraryService.BorrowABook(bookId,2);
                 await context.SaveChangesAsync();
                 
                 //var book =context.Books.First();
                 var book = context.Books.FirstOrDefault(b=>b.Id == bookId);
-                book.Quantity.Should().Be(1);
+                book.Quantity.Should().Be(2);
             }
 
         }
@@ -140,12 +117,12 @@ namespace Tests
         {
             using (context = new LibraryContext())
             {
-                int orderId = 5; 
+                int orderId = 3; 
                 var order = context.Orders.FirstOrDefault(o=>o.Id==orderId);
-                orderService.GiveBackABook(order.Id);
+                libraryService.GiveBackABook(order.Id);
                 await context.SaveChangesAsync();
                 var book = context.Books.FirstOrDefault(b=>b.Id==order.BookId);
-                book.Quantity.Should().Be(4);
+                book.Quantity.Should().Be(1);
             }
 
         }
@@ -153,20 +130,23 @@ namespace Tests
         [Fact]
        public async Task GetCostOfOrderForLecturerTest()
         {
-            float cost= orderService.GetCostOfOrderForLecturer(14);
+            int borrowInterval = 14;
+            float cost= libraryService.GetCostOfOrderForLecturer(borrowInterval);
             cost.Should().Be(22);
         }
 
         [Fact]
         public async Task GetCostOfOrderForstudentTest()
         {
-            float cost = orderService.GetCostOfOrderForStudent(16);
+            int borrowInterval = 16;
+            float cost = libraryService.GetCostOfOrderForStudent(borrowInterval);
             cost.Should().Be(31);
         }
         [Fact]
         public async Task GetCostOfOrderForEmployeeTest()
         {
-            float cost = orderService.GetCostOfOrderForEmployee(30);
+            int borrowInterval = 30;
+            float cost = libraryService.GetCostOfOrderForEmployee(borrowInterval);
             cost.Should().Be(10);
         }
 
@@ -175,7 +155,7 @@ namespace Tests
         {
             int  orderId = 3;
             var order =  context.Orders.FirstOrDefault(o => o.Id == orderId);
-            float cost = orderService.GetCostOfOrder(order);
+            float cost = libraryService.GetCostOfOrder(order);
 
             cost.Should().Be(0);
         }
@@ -187,7 +167,7 @@ namespace Tests
             DateTime endTime = DateTime.Now.AddDays(32);
             int orderId = 1;
             var order = context.Orders.FirstOrDefault(o => o.Id == orderId);
-            float cost = orderService.GetCostOfOrder(order,startTime,endTime);
+            float cost = libraryService.GetCostOfOrder(order,startTime,endTime);
 
             cost.Should().Be(131);
         }
