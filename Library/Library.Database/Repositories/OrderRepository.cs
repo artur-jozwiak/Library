@@ -32,9 +32,10 @@ namespace Library.Database.Repositories
         public void Delete(int id)
         {
             var order = _context.Orders.FirstOrDefault(u => u.Id == id);
+            var book = _context.Books.FirstOrDefault(u => u.Id == order.BookId);
             if (order != null)
             {
-                order.Book.Quantity++;
+                book.Quantity++;
                 _context.Orders.Remove(order);
             }
         }
@@ -44,7 +45,6 @@ namespace Library.Database.Repositories
             return _context.Orders.ToList();
         }
      
-
         public Order GetById(int id)
         {
             return _context.Orders.FirstOrDefault(u => u.Id == id);

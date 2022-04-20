@@ -44,7 +44,8 @@ namespace Tests
             using (var context = new LibraryContext())
             {
                 var orders = await context.Orders.ToArrayAsync();
-                orders.Count().Should().Be(9);
+                orders.Count().Should().Be(6);
+                
             }
         }
 
@@ -68,6 +69,34 @@ namespace Tests
             {
                 var books = await context.Books.ToArrayAsync();
                 books.Count().Should().Be(4);
+            }
+        }
+        [Fact]
+        public async Task DeleteOrderTest()
+        {
+            using (var context = new LibraryContext())
+            {
+                OrderRepository orderRepository = new OrderRepository(context);
+                var order = new Order
+                {
+                    User = new User { Name = "Arkadiusz", Surname = "Ostrowski", PersonalNumber = 123823456, Role = Library.BussinesLogic.Enums.Role.Student },
+                    Book = new Book { Author = "Andrzej Ziemiański", Category = Library.BussinesLogic.Enums.BookCategory.Fantasy, Quantity = 3, Title = "Achaja" },
+                    BorrowInterval = 56,
+                    Cost = 0
+                };
+                orderRepository.Create(order);
+                await context.SaveChangesAsync();
+
+                int orderId = 6;
+                orderRepository.Delete(orderId);
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new LibraryContext())
+            {
+                var orders = await context.Orders.ToArrayAsync();
+                 orders.Count().Should().Be(5);
+
             }
         }
 

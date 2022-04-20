@@ -49,10 +49,8 @@ namespace Library.Database.Repositories
         }
 
         public void Update(User entity)
-        {
-            
-            _context.Update(entity);
-           
+        {          
+            _context.Update(entity);          
         }
     }
 }

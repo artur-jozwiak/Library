@@ -20,7 +20,6 @@ namespace Library.Database.Repositories
         {
             _context.Books.Add(entity);
             return entity;
-
         }
 
         public void Delete(int id)
@@ -48,10 +47,8 @@ namespace Library.Database.Repositories
         }
 
         public void Update(Book entity)
-        {
-            
+        {         
             _context.Update(entity);
-
         }
     }
 }

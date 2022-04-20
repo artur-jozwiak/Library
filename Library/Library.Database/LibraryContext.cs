@@ -28,8 +28,6 @@ namespace Library.Database
         {
             base.OnConfiguring(optionsBuilder);
 
-            //optionsBuilder.UseLazyLoadingProxies();
-
             optionsBuilder
                 .UseSqlServer("Server=localhost;Database=LibraryDb;Trusted_Connection=True;MultipleActiveResultSets=True;");
         }
@@ -37,47 +35,47 @@ namespace Library.Database
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Book)
+            var order = modelBuilder.Entity<Order>();
+            var user = modelBuilder.Entity<User>();
+            var book =modelBuilder.Entity<Book>();
+
+                order.HasOne(o => o.Book)
                 .WithMany()
                 .HasForeignKey(o => o.BookId)
                 .IsRequired();
-
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.User)
+           
+                 order.HasOne(o => o.User)
                 .WithMany()
                 .HasForeignKey(o=>o.UserId)
                 .IsRequired();
-
-            modelBuilder.Entity<User>()
-                .HasIndex(u => u.PersonalNumber)
+           
+                user.HasIndex(u => u.PersonalNumber)
                 .IsUnique();
-
-            modelBuilder.Entity<User>()
-                .Property(u => u.PersonalNumber)
+            
+                user.Property(u => u.PersonalNumber)
                 .HasMaxLength(11);
+           
+                user.Property(u => u.Name)
+                .IsRequired()
+                .HasMaxLength(50);
+           
+                 user.Property(u => u.Surname)
+                .IsRequired()
+                .HasMaxLength(50);
+            
+               user.Property(u => u.Role)
+               .IsRequired();
 
-            modelBuilder.Entity<User>()
-                .Property(u => u.Name)
+                book.Property(b => b.Title)
                 .IsRequired()
                 .HasMaxLength(50);
 
-            modelBuilder.Entity<User>()
-               .Property(u => u.Surname)
-               .IsRequired()
-               .HasMaxLength(50);
+                book.Property(b => b.Author)
+                .IsRequired()
+                .HasMaxLength(50);
 
-            modelBuilder.Entity<User>()
-               .Property(u => u.Role)
-               .IsRequired();
-              
-
-
-
-
-
-
-
+                book.Property(b => b.Category)
+                .IsRequired();
         }
     }
 }

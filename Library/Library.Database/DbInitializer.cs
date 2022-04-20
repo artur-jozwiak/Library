@@ -85,6 +85,20 @@ namespace Library.Database
                     context.Orders.AddRange(
                     new Order()
                     {
+                        User = context.Users.FirstOrDefault(u => u.Id == 3),
+                        Book = context.Books.FirstOrDefault(u => u.Id == 1),
+                        BorrowInterval = 30,
+                        Cost = 0
+                    },
+                      new Order()
+                      {
+                          User = context.Users.FirstOrDefault(u => u.Id == 1),
+                          Book = context.Books.FirstOrDefault(u => u.Id == 2),
+                          BorrowInterval = 30,
+                          Cost = 0
+                      },
+                    new Order()
+                    {
                         User = context.Users.FirstOrDefault(u => u.Id == 1),
                         Book = context.Books.FirstOrDefault(u => u.Id == 1),
                         BorrowInterval = 30,
