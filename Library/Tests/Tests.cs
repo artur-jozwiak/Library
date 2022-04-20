@@ -120,7 +120,7 @@ namespace Tests
             using (var context = new LibraryContext())
             {
                 var users = await context.Users.ToArrayAsync();
-                users.Count().Should().Be(4);
+                users.Count().Should().Be(5);
             }
         }
 
@@ -136,7 +136,7 @@ namespace Tests
                 
                 //var book =context.Books.First();
                 var book = context.Books.FirstOrDefault(b=>b.Id == bookId);
-                book.Quantity.Should().Be(2);
+                book.Quantity.Should().Be(4);
             }
 
         }
@@ -151,7 +151,7 @@ namespace Tests
                 libraryService.GiveBackABook(order.Id);
                 await context.SaveChangesAsync();
                 var book = context.Books.FirstOrDefault(b=>b.Id==order.BookId);
-                book.Quantity.Should().Be(1);
+                book.Quantity.Should().Be(2);
             }
 
         }
@@ -186,7 +186,7 @@ namespace Tests
             var order =  context.Orders.FirstOrDefault(o => o.Id == orderId);
             float cost = libraryService.GetCostOfOrder(order);
 
-            cost.Should().Be(0);
+            cost.Should().Be(10);
         }
 
         [Fact]
@@ -198,7 +198,7 @@ namespace Tests
             var order = context.Orders.FirstOrDefault(o => o.Id == orderId);
             float cost = libraryService.GetCostOfOrder(order,startTime,endTime);
 
-            cost.Should().Be(131);
+            cost.Should().Be(132);
         }
     }
 }
