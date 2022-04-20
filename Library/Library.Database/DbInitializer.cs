@@ -74,7 +74,7 @@ namespace Library.Database
                         Name = "Jan",
                         Surname = "Malinowski",
                         PersonalNumber = 65478932178,
-                        Role = BussinesLogic.Enums.Role.Employee
+                        Role = BussinesLogic.Enums.Role.Lecturer
                     });
                     context.SaveChanges();
 
